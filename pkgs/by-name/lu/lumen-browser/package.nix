@@ -17,7 +17,7 @@ buildNpmPackage rec {
     hash = "sha256-soVW0Wj5Jf/GUoUc5xzGC2OROacChRMj0FR9dzqqjwk=";
   };
 
-  npmDepsHash = ""; # Temporary placeholder; will need correct hash or pre-built modules if npm install requires network during build
+  npmDepsHash = "sha256-OtwQkkGzbqC9Z4qgg5A9xfFUoOsbjr7t2wGsZnNsCNY=";
 
   nativeBuildInputs = [ makeWrapper ];
 
