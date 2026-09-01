@@ -1,12 +1,13 @@
 { lib
-, buildNpmPackage
+, stdenv
 , fetchFromGitHub
 , makeWrapper
+, nodejs
 , electron
 , kubo
 }:
 
-buildNpmPackage rec {
+stdenv.mkDerivation rec {
   pname = "lumen-browser";
   version = "0.9.9";
 
@@ -17,30 +18,25 @@ buildNpmPackage rec {
     hash = "sha256-soVW0Wj5Jf/GUoUc5xzGC2OROacChRMj0FR9dzqqjwk=";
   };
 
-  npmDepsHash = "sha256-OtwQkkGzbqC9Z4qgg5A9xfFUoOsbjr7t2wGsZnNsCNY=";
-  
-  # Ignore scripts during npm install to prevent electron from trying to download binaries over the network
-  npmFlags = [ "--ignore-scripts" ];
-
   nativeBuildInputs = [ makeWrapper ];
 
+  dontBuild = true;
+  dontConfigure = true;
+
   installPhase = ''
-    runHook preInstall
-    
     mkdir -p $out/share/${pname} $out/bin
     cp -r . $out/share/${pname}
 
-    makeWrapper ${electron}/bin/electron $out/bin/lumen-browser \
-      --run "cd $out/share/${pname}" \
-      --prefix PATH : "${lib.makeBinPath [ kubo ]}" \
-      --add-flags "$out/share/${pname}" \
+    makeWrapper ${nodejs}/bin/npm $out/bin/lumen-browser \
+      --run "cd $out/share/${pname} && [ -d node_modules ] || npm install --offline --no-fund || npm install" \
+      --set ELECTRON_OVERRIDE_DIST_PATH "${electron}/bin" \
+      --prefix PATH : "${lib.makeBinPath [ nodejs kubo electron ]}" \
+      --add-flags "run dev" \
       --add-flags "\$@"
-
-    runHook postInstall
   '';
 
   meta = with lib; {
-    description = "Lumen Browser";
+    description = "Lumen Browser self-contained runtime";
     homepage = "https://github.com/network-lumen/browser";
     license = licenses.mit;
     platforms = [ "x86_64-linux" ];
