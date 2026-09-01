@@ -28,7 +28,7 @@ stdenv.mkDerivation rec {
     cp -r . $out/share/${pname}
 
     makeWrapper ${nodejs}/bin/npm $out/bin/lumen-browser \
-      --run "cd $out/share/${pname} && [ -d node_modules ] || npm install --offline --no-fund || npm install" \
+      --run "cd $out/share/${pname} && [ -d node_modules ] || ${nodejs}/bin/npm install --offline --no-fund || ${nodejs}/bin/npm install" \
       --set ELECTRON_OVERRIDE_DIST_PATH "${electron}/bin" \
       --prefix PATH : "${lib.makeBinPath [ nodejs kubo electron ]}" \
       --add-flags "run dev" \
