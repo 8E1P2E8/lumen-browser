@@ -18,6 +18,9 @@ buildNpmPackage rec {
   };
 
   npmDepsHash = "sha256-OtwQkkGzbqC9Z4qgg5A9xfFUoOsbjr7t2wGsZnNsCNY=";
+  
+  # Ignore scripts during npm install to prevent electron from trying to download binaries over the network
+  npmFlags = [ "--ignore-scripts" ];
 
   nativeBuildInputs = [ makeWrapper ];
 
