@@ -1,13 +1,13 @@
 { lib
-, buildNpmPackage
+, stdenv
 , fetchFromGitHub
 , makeWrapper
+, nodejs
 , electron
 , kubo
-, nodejs
 }:
 
-buildNpmPackage rec {
+stdenv.mkDerivation rec {
   pname = "lumen-browser";
   version = "0.9.9";
 
@@ -18,27 +18,23 @@ buildNpmPackage rec {
     hash = "sha256-soVW0Wj5Jf/GUoUc5xzGC2OROacChRMj0FR9dzqqjwk=";
   };
 
-  npmDepsHash = "sha256-OtwQkkGzbqC9Z4qgg5A9xfFUoOsbjr7t2wGsZnNsCNY=";
-
   nativeBuildInputs = [ makeWrapper ];
 
-  npmFlags = [ "--ignore-scripts" ];
+  dontBuild = true;
+  dontConfigure = true;
 
-  dontNpmBuild = false;
-
-  postInstall = ''
-    cp -r . $out/lib/node_modules/lumen-browser/
-
+  installPhase = ''
     mkdir -p $out/bin
-    makeWrapper ${electron}/bin/electron $out/bin/lumen-browser \
+    makeWrapper ${nodejs}/bin/npm $out/bin/lumen-browser \
+      --run "cd ~/Documents/test/lumen-source" \
       --set ELECTRON_OVERRIDE_DIST_PATH "${electron}/bin" \
-      --prefix PATH : "${lib.makeBinPath [ kubo nodejs ]}" \
-      --add-flags "$out/lib/node_modules/lumen-browser/electron/main.cjs" \
+      --prefix PATH : "${lib.makeBinPath [ nodejs kubo electron ]}" \
+      --add-flags "run dev" \
       --add-flags "\$@"
   '';
 
   meta = with lib; {
-    description = "Native browser for the Lumen ecosystem providing direct access to on-chain state and IPFS";
+    description = "Lumen Browser development wrapper";
     homepage = "https://github.com/network-lumen/browser";
     license = licenses.mit;
     platforms = [ "x86_64-linux" ];
