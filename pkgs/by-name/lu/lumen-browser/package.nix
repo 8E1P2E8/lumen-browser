@@ -1,13 +1,12 @@
 { lib
-, stdenv
+, buildNpmPackage
 , fetchFromGitHub
 , makeWrapper
-, nodejs
 , electron
 , kubo
 }:
 
-stdenv.mkDerivation rec {
+buildNpmPackage rec {
   pname = "lumen-browser";
   version = "0.9.9";
 
@@ -18,23 +17,27 @@ stdenv.mkDerivation rec {
     hash = "sha256-soVW0Wj5Jf/GUoUc5xzGC2OROacChRMj0FR9dzqqjwk=";
   };
 
+  npmDepsHash = ""; # Temporary placeholder; will need correct hash or pre-built modules if npm install requires network during build
+
   nativeBuildInputs = [ makeWrapper ];
 
-  dontBuild = true;
-  dontConfigure = true;
-
   installPhase = ''
-    mkdir -p $out/bin
-    makeWrapper ${nodejs}/bin/npm $out/bin/lumen-browser \
-      --run "cd ~/Documents/test/lumen-source" \
-      --set ELECTRON_OVERRIDE_DIST_PATH "${electron}/bin" \
-      --prefix PATH : "${lib.makeBinPath [ nodejs kubo electron ]}" \
-      --add-flags "run dev" \
+    runHook preInstall
+    
+    mkdir -p $out/share/${pname} $out/bin
+    cp -r . $out/share/${pname}
+
+    makeWrapper ${electron}/bin/electron $out/bin/lumen-browser \
+      --run "cd $out/share/${pname}" \
+      --prefix PATH : "${lib.makeBinPath [ kubo ]}" \
+      --add-flags "$out/share/${pname}" \
       --add-flags "\$@"
+
+    runHook postInstall
   '';
 
   meta = with lib; {
-    description = "Lumen Browser development wrapper";
+    description = "Lumen Browser";
     homepage = "https://github.com/network-lumen/browser";
     license = licenses.mit;
     platforms = [ "x86_64-linux" ];
