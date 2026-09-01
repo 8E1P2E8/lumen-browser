@@ -9,12 +9,12 @@
 
 buildNpmPackage rec {
   pname = "lumen-browser";
-  version = "0.9.9";
+  version = "0.9.10";
 
   src = fetchFromGitHub {
     owner = "network-lumen";
     repo = "browser";
-    rev = "v${version}";
+    rev = "v0.9.9";
     hash = "sha256-soVW0Wj5Jf/GUoUc5xzGC2OROacChRMj0FR9dzqqjwk=";
   };
 
@@ -30,7 +30,7 @@ buildNpmPackage rec {
     cp -r . $out/share/${pname}
 
     makeWrapper ${nodejs}/bin/npm $out/bin/lumen-browser \
-      --run "RUNTIME_DIR=\"\${XDG_CACHE_HOME:-\$HOME/.cache}/lumen-browser-dev\"; mkdir -p \"\$RUNTIME_DIR\"; cp -r --no-preserve=mode ${out}/share/${pname}/* \"\$RUNTIME_DIR/\"; cd \"\$RUNTIME_DIR\"" \
+      --run "RUNTIME_DIR=\"\${XDG_CACHE_HOME:-\$HOME/.cache}/lumen-browser-dev\"; mkdir -p \"\$RUNTIME_DIR\"; cp -r --no-preserve=mode $out/share/${pname}/* \"\$RUNTIME_DIR/\"; cd \"\$RUNTIME_DIR\"" \
       --prefix PATH : "${lib.makeBinPath [ nodejs kubo electron ]}" \
       --add-flags "run dev" \
       --add-flags "\$@"
