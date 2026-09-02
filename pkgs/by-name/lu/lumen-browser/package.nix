@@ -11,7 +11,7 @@
 
 buildNpmPackage rec {
   pname = "lumen-browser";
-  version = "0.9.24";
+  version = "0.9.25";
 
   src = fetchFromGitHub {
     owner = "network-lumen";
@@ -37,6 +37,7 @@ buildNpmPackage rec {
       --run 'RUNTIME_DIR="''${XDG_CACHE_HOME:-$HOME/.cache}/lumen-browser-dev"; mkdir -p "$RUNTIME_DIR"; if [ ! -f "$RUNTIME_DIR/package.json" ]; then cp -r --no-preserve=mode ${placeholder "out"}/share/${pname}/* "$RUNTIME_DIR/"; chmod -R +rwx "$RUNTIME_DIR"; fi; cd "$RUNTIME_DIR"' \
       --set ELECTRON_OVERRIDE_DIST_PATH "${electron}/bin" \
       --prefix PATH : "${lib.makeBinPath [ nodejs kubo electron xorg.xorgserver xvfb-run ]}" \
+      --set IPFS_PATH "${lib.getBin kubo}/bin/ipfs" \
       --add-flags "run dev" \
       --add-flags "\$@"
 
