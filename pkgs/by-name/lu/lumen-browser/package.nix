@@ -11,7 +11,7 @@
 
 buildNpmPackage rec {
   pname = "lumen-browser";
-  version = "0.9.23";
+  version = "0.9.24";
 
   src = fetchFromGitHub {
     owner = "network-lumen";
