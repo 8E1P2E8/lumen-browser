@@ -6,11 +6,12 @@
 , electron
 , kubo
 , xorg
+, xvfb-run
 }:
 
 buildNpmPackage rec {
   pname = "lumen-browser";
-  version = "0.9.22";
+  version = "0.9.23";
 
   src = fetchFromGitHub {
     owner = "network-lumen";
@@ -30,11 +31,12 @@ buildNpmPackage rec {
     mkdir -p $out/share/${pname} $out/bin
     cp -r . $out/share/${pname}
 
-    makeWrapper ${nodejs}/bin/npm $out/bin/lumen-browser \
+    makeWrapper ${xvfb-run}/bin/xvfb-run $out/bin/lumen-browser \
+      --add-flags "--auto-servernum" \
+      --add-flags "${nodejs}/bin/npm" \
       --run 'RUNTIME_DIR="''${XDG_CACHE_HOME:-$HOME/.cache}/lumen-browser-dev"; mkdir -p "$RUNTIME_DIR"; if [ ! -f "$RUNTIME_DIR/package.json" ]; then cp -r --no-preserve=mode ${placeholder "out"}/share/${pname}/* "$RUNTIME_DIR/"; chmod -R +rwx "$RUNTIME_DIR"; fi; cd "$RUNTIME_DIR"' \
       --set ELECTRON_OVERRIDE_DIST_PATH "${electron}/bin" \
-      --prefix PATH : "${lib.makeBinPath [ nodejs kubo electron xorg.xorgserver ]}" \
-      --prefix-each-arg xvfb-run --auto-servernum -- \
+      --prefix PATH : "${lib.makeBinPath [ nodejs kubo electron xorg.xorgserver xvfb-run ]}" \
       --add-flags "run dev" \
       --add-flags "\$@"
 
